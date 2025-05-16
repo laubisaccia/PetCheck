@@ -1,0 +1,47 @@
+# Entorno virtual
+env/
+venv/
+ENV/
+*.py[cod]
+__pycache__/
+.Python
+
+# Archivos de configuración del sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de logs y bases de datos
+*.log
+*.sqlite3
+
+# Archivos de configuración personales
+*.env
+.env.*
+
+# VSCode settings
+.vscode/
+
+# PyCharm settings
+.idea/
+
+# Bytecode compilado
+*.pyc
+
+# Coverage reports
+htmlcov/
+.coverage
+coverage.xml
+
+# pytest
+.cache/
+
+# mypy
+.mypy_cache/
+
+# Uvicorn reload artifacts
+*.pid
+
+# Output de tests o builds
+dist/
+build/
+*.egg-info/
