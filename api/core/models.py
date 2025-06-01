@@ -1,6 +1,7 @@
 from .database import Base
-from sqlalchemy import Column,Integer, String,ForeignKey
+from sqlalchemy import Column,Integer, String,ForeignKey,DateTime,Text
 from sqlalchemy.orm import relationship
+import datetime
 
 
 class Customer(Base):
@@ -25,6 +26,25 @@ class Pet(Base):
     customer_id = Column(String, ForeignKey("customers.id"), nullable=False)
 
     owner = relationship("Customer", back_populates="pets")
+    appointments = relationship("Appointment", back_populates="pet", cascade="all, delete-orphan")
 
 
+class Appointment(Base):
+    __tablename__ = "appointments"
+    id = Column(String, primary_key=True)
+    date = Column(DateTime, default=datetime.datetime.now)
+    diagnosis = Column(Text, nullable=True)
+    treatment = Column(Text, nullable=True)
+    pet_id = Column(String, ForeignKey("pets.id"), nullable=False)
+    doctor_id = Column(String, ForeignKey("doctors.id"), nullable=False)
 
+    pet = relationship("Pet", back_populates="appointments")
+    doctor = relationship("Doctor", back_populates="appointments")
+
+class Doctor(Base):
+    __tablename__ = "doctors"
+
+    id = Column(String, primary_key=True)
+    name = Column(String)
+
+    appointments = relationship("Appointment", back_populates="doctor")
