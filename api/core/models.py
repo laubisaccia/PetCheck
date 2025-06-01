@@ -1,9 +1,13 @@
-from sqlalchemy import Column,Integer,String,ForeignKey
-from sqlalchemy.orm import relationship
+from .database import Base
+from sqlalchemy import Column,Integer, String
 
-from api.core.database import Base
+class Customer(Base):
+    __tablename__="customers"
+    id=Column(String,primary_key=True)
+    firstName= Column(String)
+    lastName= Column(String)
+    email=Column(String)
+    phone=Column(Integer)
 
-class Clientes(Base):
-    __tablename__="clientes"
-    id=Column(Integer,primary_key=True, index=True)
-    nombre=Column(String,nullable=True)
+
+
