@@ -1,9 +1,13 @@
-from fastapi import FastAPI
+from fastapi import FastAPI,Depends
 
 
+import api.auth
 import api.mascotas.endpoint
 import api.customers.endpoint
 import api.reservas.endpoint
+import api.auth.endpoint
+from api.auth.endpoint import BearerJWT
+
 
 app = FastAPI(
     title="Pet Check",
@@ -12,7 +16,14 @@ app = FastAPI(
 )
 
 prefix_base= "/api/v1"
-app.include_router(api.customers.endpoint.router, prefix=f"{prefix_base}/customers",tags=["customers"])
+app.include_router(api.auth.endpoint.router, prefix=f"{prefix_base}/login",tags=["login"])
+app.include_router(
+    api.customers.endpoint.router,
+    prefix=f"{prefix_base}/customers",
+    tags=["customers"],
+    dependencies=[Depends(BearerJWT())]
+)
+#app.include_router(api.customers.endpoint.router, prefix=f"{prefix_base}/customers",tags=["customers"],dependencies=[Depends])
 app.include_router(api.mascotas.endpoint.router, prefix=f"{prefix_base}/mascotas",tags=["mascotas"])
 app.include_router(api.reservas.endpoint.router, prefix=f"{prefix_base}/reservas",tags=["reservas"])
 

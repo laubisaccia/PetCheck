@@ -1,72 +1,96 @@
 from fastapi import APIRouter,Depends,HTTPException,Body
-from pydantic import BaseModel
-from typing import Optional
-
+from pydantic import BaseModel,Field,EmailStr
+from typing import Optional, List
+from fastapi.responses import JSONResponse
+import uuid
 
 router=APIRouter()
 
 class Customer(BaseModel):
-    ID_customer: int
-    first_name: str
-    last_name: str
-    email: str
-    phone: int
+    id: str
+    first_name: str=Field(default="First Name", min_length=3)
+    last_name: str = Field(default="Last Name", min_length=3)
+    email: EmailStr 
+    phone: int = Field(..., ge=1000000, le=9999999999)
 
 #para usar patch
 class CustomerUpdate(BaseModel):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
-    email: Optional[str] = None
+    email: Optional[EmailStr] = None
     phone: Optional[int] = None
 
-customers = [
+#para solucionar el problema del id hice este modelo
+class CustomerCreate(BaseModel):
+    first_name: str = Field(default="First Name", min_length=3)
+    last_name: str = Field(default="Last Name", min_length=3)
+    email: EmailStr
+    phone: int = Field(..., ge=1000000, le=9999999999)
+
+customers: List[dict] = [
     {
-        "ID_customer": 1,
+        "id": str(uuid.uuid4()),
         "first_name": "Laura",
         "last_name": "Pérez",
         "email": "laura@example.com",
-        "phone": "123456789"
+        "phone": 123456789
     },
     {
-        "ID_customer": 2,
+        "id": str(uuid.uuid4()),
         "first_name": "Carlos",
         "last_name": "Gómez",
         "email": "carlos@example.com",
-        "phone": "987654321"
+        "phone": 987654321
     }
 ]
 
-@router.get("/")
-async def get_customers():
-    return{"customers":customers}
 
-@router.get("/{id_customer}")
-async def get_customer_by_id(id_customer: int):
-    for cust in customers:
-        if cust["ID_customer"] == id_customer:
-            return cust
+
+@router.get("/",response_model=List[Customer])
+async def get_customers():
+    return customers
+
+@router.get("/{id_customer}", response_model=Customer)
+async def get_customer_by_id(id_customer: str):
+    for customer in customers:
+        if customer["id"] == id_customer:
+            return customer
     raise HTTPException(status_code=404, detail="Cliente no encontrado")
 
 
 
 #model dump es dict
-@router.post("/")
-async def create_customer(customer: Customer):
-    customers.append(customer.model_dump())  
-    return customer
+#es un metodo pydantic para validar datos basemodel. Customer es objeto de python pero se guardan
+#en diccionarios no objetos entonces modeldump lo convierte
 
-@router.put("/{id_customer}")
-async def update_customer(id_customer: int, updated_customer: Customer):
+
+@router.post("/",response_model=Customer)
+async def create_customer(customer: CustomerCreate):
+    customer_data = customer.model_dump()
+    customer_data["id"] = str(uuid.uuid4())
+    customers.append(customer_data)
+    return JSONResponse(
+        content={
+            "message": "New customer was added",
+            "customers": customers
+        },
+        status_code=201
+    )
+
+@router.put("/{id_customer}", response_model=Customer)
+async def update_customer(id_customer: str, updated_customer: CustomerCreate):
     for i, customer in enumerate(customers):
-        if customer["ID_customer"] == id_customer:
-            customers[i] = updated_customer.model_dump()
-            return updated_customer
+        if customer["id"] == id_customer:
+            updated_data = updated_customer.model_dump()
+            updated_data["id"] = id_customer 
+            customers[i] = updated_data
+            return updated_data
     raise HTTPException(status_code=404, detail="Customer not found")
 
-@router.patch("/{id_customer}")
-async def patch_customer(id_customer: int, customer_update: CustomerUpdate):
+@router.patch("/{id_customer}", response_model=Customer)
+async def patch_customer(id_customer: str, customer_update: CustomerUpdate):
     for customer in customers:
-        if customer["ID_customer"] == id_customer:
+        if customer["id"] == id_customer:
             update_data = customer_update.model_dump(exclude_unset=True)
             for key, value in update_data.items():
                 customer[key] = value
@@ -74,10 +98,10 @@ async def patch_customer(id_customer: int, customer_update: CustomerUpdate):
     raise HTTPException(status_code=404, detail="Customer not found")
 
 @router.delete("/{id_customer}")
-async def delete_customer(id_customer: int):
-    for idx, customer in enumerate(customers):
-        if customer["ID_customer"] == id_customer:
-            customers.pop(idx)
+async def delete_customer(id_customer: str):
+    for i, customer in enumerate(customers):
+        if customer["id"] == id_customer:
+            customers.pop(i)
             return {"message": "Customer deleted"}
     raise HTTPException(status_code=404, detail="Customer not found")
 
