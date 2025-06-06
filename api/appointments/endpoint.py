@@ -128,3 +128,12 @@ def update_appointment(appointment_id: str, update_data: AppointmentUpdate, db: 
     db.refresh(appointment)
     return appointment
 
+@router.delete("/{appointment_id}", status_code=204)
+def delete_appointment(appointment_id: str, db: Session = Depends(get_db)):
+    appointment = db.query(AppointmentModel).filter(AppointmentModel.id == appointment_id).first()
+    
+    if not appointment:
+        raise HTTPException(status_code=404, detail="Appointment not found")
+
+    db.delete(appointment)
+    db.commit()
