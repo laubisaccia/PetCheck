@@ -1,5 +1,5 @@
 
-from fastapi import APIRouter,Request,HTTPException
+from fastapi import APIRouter,Request,HTTPException, status
 from pydantic import BaseModel,Field,EmailStr
 from api.user_jwt import createToken,validateToken
 from fastapi.responses import JSONResponse
@@ -25,3 +25,5 @@ def login(user:User):
         token:str=createToken(user.model_dump())
         print(token)
         return JSONResponse(content=token)
+    else:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password")

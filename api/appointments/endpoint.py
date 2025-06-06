@@ -6,12 +6,9 @@ from typing import Optional,List
 from fastapi import APIRouter,Depends,HTTPException
 
 from api.core.database import get_db
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session,joinedload
 
 from api.core.models import Appointment as AppointmentModel, Pet as PetModel, Doctor as DoctorModel
-
-
-
 
 router=APIRouter()
 
@@ -37,6 +34,43 @@ class AppointmentUpdate(BaseModel):
     diagnosis: Optional[str] = None
     treatment: Optional[str] = None       
 
+
+class OwnerInfo(BaseModel):
+    id: str
+    firstName: str
+    lastName: str
+
+    class Config:
+        orm_mode = True
+   
+class PetInfo(BaseModel):
+    id: str
+    name: str
+    owner: OwnerInfo 
+
+    class Config:
+        orm_mode = True
+
+class DoctorInfo(BaseModel):
+    id: str
+    name: str
+
+    class Config:
+        orm_mode = True
+
+
+# Modelo de appointment con pet y doctor 
+class AppointmentWithNames(AppointmentBase):
+    id: str
+    pet: PetInfo
+    doctor: DoctorInfo
+
+    class Config:
+        orm_mode = True
+
+
+
+
 @router.post("/", response_model=Appointment, status_code=201)
 def create_appointment(app_data: AppointmentCreate, db: Session = Depends(get_db)):
     pet = db.query(PetModel).filter(PetModel.id == app_data.pet_id).first()
@@ -61,6 +95,19 @@ def create_appointment(app_data: AppointmentCreate, db: Session = Depends(get_db
     db.refresh(new_app)
     return new_app
 
+#este era el de todos los appointments que por el momento no se uso
+# @router.get("", response_model=List[Appointment])
+# def get_all_appointments(db: Session = Depends(get_db)):
+#     return db.query(AppointmentModel).all()
+
+@router.get("/with-names", response_model=List[AppointmentWithNames])
+def get_appointments_with_names(db: Session = Depends(get_db)):
+    appointments = db.query(AppointmentModel).options(
+        joinedload(AppointmentModel.pet).joinedload(PetModel.owner),
+        joinedload(AppointmentModel.doctor)
+    ).all()
+    return appointments
+
 @router.get("/by-pet/{pet_id}", response_model=List[Appointment])
 def get_appointments_by_pet(pet_id: str, db: Session = Depends(get_db)):
     pet = db.query(PetModel).filter(PetModel.id == pet_id).first()
@@ -81,6 +128,3 @@ def update_appointment(appointment_id: str, update_data: AppointmentUpdate, db: 
     db.refresh(appointment)
     return appointment
 
-# @router.get("/")
-# async def reservas():
-#     return{"reservas":"reservas"}

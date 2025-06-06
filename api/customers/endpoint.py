@@ -31,23 +31,6 @@ class CustomerCreate(BaseModel):
     email: EmailStr
     phone: int = Field(..., ge=1000000, le=9999999999)
 
-customers: List[dict] = [
-    {
-        "id": str(uuid.uuid4()),
-        "firstName": "Laura",
-        "lastName": "Pérez",
-        "email": "laura@example.com",
-        "phone": 123456789
-    },
-    {
-        "id": str(uuid.uuid4()),
-        "firstName": "Carlos",
-        "lastName": "Gómez",
-        "email": "carlos@example.com",
-        "phone": 987654321
-    }
-]
-
 
 
 @router.get("/",response_model=List[Customer])
