@@ -31,8 +31,8 @@ Base.metadata.create_all(bind=engine)
 prefix_base= "/api/v1"
 app.include_router(api.auth.endpoint.router, prefix=f"{prefix_base}",tags=["login"])
 app.include_router(api.customers.endpoint.router,prefix=f"{prefix_base}/customers",tags=["customers"],dependencies=[Depends(BearerJWT())])
-app.include_router(api.pets.endpoint.router, prefix=f"{prefix_base}/pets",tags=["pets"])
-app.include_router(api.appointments.endpoint.router, prefix=f"{prefix_base}/appointments",tags=["appointments"])
-app.include_router(api.doctors.endpoint.router, prefix=f"{prefix_base}/doctors",tags=["doctors"])
+app.include_router(api.pets.endpoint.router, prefix=f"{prefix_base}/pets",tags=["pets"],dependencies=[Depends(BearerJWT())])
+app.include_router(api.appointments.endpoint.router, prefix=f"{prefix_base}/appointments",tags=["appointments"],dependencies=[Depends(BearerJWT())])
+app.include_router(api.doctors.endpoint.router, prefix=f"{prefix_base}/doctors",tags=["doctors"],dependencies=[Depends(BearerJWT())])
 
 
