@@ -3,7 +3,13 @@ from sqlalchemy import Column,Integer, String,ForeignKey,DateTime,Text
 from sqlalchemy.orm import relationship
 import datetime
 
-
+class UserDB(Base):
+    __tablename__ = "users"
+    id = Column(String, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True)
+    hashed_password = Column(String)
+    role = Column(String)
+    
 class Customer(Base):
     __tablename__="customers"
     id=Column(String,primary_key=True)

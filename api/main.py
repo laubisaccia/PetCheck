@@ -1,17 +1,17 @@
 from fastapi import FastAPI,Depends
 
-
 import api.auth
 import api.pets.endpoint
 import api.customers.endpoint
 import api.appointments.endpoint
 import api.auth.endpoint
 import api.doctors.endpoint
+import api.users.endpoint
 from api.auth.endpoint import BearerJWT
 from api.core.database import Session,engine,Base
 from api.core.models import Customer
 from fastapi.middleware.cors import CORSMiddleware
-
+from api.auth.endpoint import get_current_user, get_current_admin, get_current_employee
 
 app = FastAPI(
     title="Pet Check",
@@ -30,9 +30,10 @@ Base.metadata.create_all(bind=engine)
 
 prefix_base= "/api/v1"
 app.include_router(api.auth.endpoint.router, prefix=f"{prefix_base}",tags=["login"])
-app.include_router(api.customers.endpoint.router,prefix=f"{prefix_base}/customers",tags=["customers"],dependencies=[Depends(BearerJWT())])
-app.include_router(api.pets.endpoint.router, prefix=f"{prefix_base}/pets",tags=["pets"],dependencies=[Depends(BearerJWT())])
-app.include_router(api.appointments.endpoint.router, prefix=f"{prefix_base}/appointments",tags=["appointments"],dependencies=[Depends(BearerJWT())])
-app.include_router(api.doctors.endpoint.router, prefix=f"{prefix_base}/doctors",tags=["doctors"],dependencies=[Depends(BearerJWT())])
+app.include_router(api.customers.endpoint.router,prefix=f"{prefix_base}/customers",tags=["customers"],dependencies=[Depends(get_current_user)])
+app.include_router(api.pets.endpoint.router, prefix=f"{prefix_base}/pets",tags=["pets"],dependencies=[Depends(get_current_user)])
+app.include_router(api.appointments.endpoint.router, prefix=f"{prefix_base}/appointments",tags=["appointments"],dependencies=[Depends(get_current_user)])
+app.include_router(api.doctors.endpoint.router, prefix=f"{prefix_base}/doctors",tags=["doctors"],dependencies=[Depends(get_current_user)])
+app.include_router(api.users.endpoint.router, prefix=f"{prefix_base}/users",tags=["users"],dependencies=[Depends(get_current_admin)])
 
 
