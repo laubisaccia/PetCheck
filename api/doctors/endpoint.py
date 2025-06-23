@@ -1,9 +1,13 @@
 from fastapi import APIRouter, HTTPException,Depends
 from pydantic import BaseModel
 import uuid
+from typing import List
+
+from api.appointments.endpoint import DoctorInfo
 from api.core.database import get_db
 from sqlalchemy.orm import Session
 from api.core.models import Doctor 
+from api.core.models import Doctor as DoctorModel
 
 
 
@@ -15,6 +19,10 @@ class DoctorCreate(BaseModel):
 class DoctorRead(BaseModel):
     id: str
     name: str
+
+@router.get("", response_model=List[DoctorInfo])
+def get_all_doctors(db: Session = Depends(get_db)):
+    return db.query(DoctorModel).all()
 
 @router.post("/doctors/", response_model=DoctorRead)
 def create_doctor(doctor: DoctorCreate, db: Session = Depends(get_db)):
