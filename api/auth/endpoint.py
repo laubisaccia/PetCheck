@@ -1,13 +1,11 @@
 
-from fastapi import APIRouter,Request,HTTPException, status,Depends,Body
-from pydantic import BaseModel,Field,EmailStr
+from fastapi import APIRouter,Request,HTTPException, status,Depends
+from pydantic import BaseModel,EmailStr
 from api.user_jwt import createToken,validateToken
 from fastapi.responses import JSONResponse
 from fastapi.security import HTTPBearer
-from api.core.database import Base
 from api.core.database import get_db,Session
 from api.core.models import UserDB
-import uuid
 
 
 router=APIRouter()
@@ -31,11 +29,6 @@ def get_current_user(token: str = Depends(BearerJWT()), db: Session = Depends(ge
 def get_current_admin(user=Depends(get_current_user)):
     if user.role != "admin":
         raise HTTPException(status_code=403, detail="No autorizado: se requiere admin role")
-    return user
-
-def get_current_employee(user=Depends(get_current_user)):
-    if user.role not in ["employee", "admin"]:
-        raise HTTPException(status_code=403, detail="No autorizado: se requiere empleado o admin")
     return user
 
 class User(BaseModel):

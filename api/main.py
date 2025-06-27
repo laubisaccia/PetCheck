@@ -7,11 +7,9 @@ import api.appointments.endpoint
 import api.auth.endpoint
 import api.doctors.endpoint
 import api.users.endpoint
-from api.auth.endpoint import BearerJWT
-from api.core.database import Session,engine,Base
-from api.core.models import Customer
+from api.core.database import engine,Base
 from fastapi.middleware.cors import CORSMiddleware
-from api.auth.endpoint import get_current_user, get_current_admin, get_current_employee
+from api.auth.endpoint import get_current_user, get_current_admin
 
 app = FastAPI(
     title="Pet Check",

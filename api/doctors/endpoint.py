@@ -11,8 +11,6 @@ from api.core.models import Doctor as DoctorModel
 from api.auth.endpoint import get_current_admin
 from typing import Optional
 
-
-
 router=APIRouter()
 
 class DoctorCreate(BaseModel):
@@ -25,7 +23,7 @@ class DoctorRead(BaseModel):
         from_attributes = True  # Para Pydantic v2
 
 class DoctorUpdate(BaseModel):
-    name: Optional[str] = None  # campo opcional para actualizar
+    name: Optional[str] = None  
 
 @router.get("", response_model=List[DoctorInfo])
 def get_all_doctors(db: Session = Depends(get_db)):
@@ -49,14 +47,13 @@ async def delete_doctor(id_doctor: str, db: Session = Depends(get_db)):
     db.commit()
     return {"message": "Doctor deleted"}
 
-@router.patch("/{id_doctor}", response_model=DoctorRead)  # ajustá response_model si usás otro esquema
+@router.patch("/{id_doctor}", response_model=DoctorRead) 
 async def patch_doctor(id_doctor: str, doctor_update: DoctorUpdate, db: Session = Depends(get_db)):
     doctor_db = db.query(DoctorModel).filter(DoctorModel.id == id_doctor).first()
     if not doctor_db:
         raise HTTPException(status_code=404, detail="Doctor not found")
 
     update_data = doctor_update.model_dump(exclude_unset=True)  # para Pydantic v2
-    # si usás Pydantic v1, es: doctor_update.dict(exclude_unset=True)
 
     for key, value in update_data.items():
         setattr(doctor_db, key, value)
