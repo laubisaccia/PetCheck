@@ -13,6 +13,7 @@ Thumbs.db
 # Archivos de logs y bases de datos
 *.log
 *.sqlite3
+*.sqlite
 
 # Archivos de configuración personales
 *.env
