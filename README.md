@@ -1,10 +1,5 @@
 # PetCheck - Sistema de Gestión Veterinaria
 
-![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.115.12-009688.svg)
-![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0.41-red.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
-
 PetCheck es una aplicación web para facilitar la gestión de servicios veterinarios. Permite al personal registrar clientes y mascotas, agendar consultas y mantener historiales médicos completos.
 
 ## Características Principales
